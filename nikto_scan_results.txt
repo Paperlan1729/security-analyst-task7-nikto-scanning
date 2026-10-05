@@ -1,0 +1,52 @@
+Nikto Scan Results & Analysis
+=============================
+Author: Dhrumit Asari
+Task: Vulnerability Scanning with Nikto
+Target: Local DVWA (http://127.0.0.1/DVWA)
+Date: October 2026
+Ethics: Local lab only.
+
+------------------------------------------------------------
+COMMAND USED
+nikto -h http://127.0.0.1/DVWA -o nikto_scan_results.txt -Format txt
+
+------------------------------------------------------------
+SAMPLE FINDINGS (representative of a typical DVWA Low scan)
+
++ Server: Apache/2.4.x
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-Content-Type-Options header is not set.
++ Root page / redirects to login form (expected for DVWA).
++ /DVWA/config/ — directory indexing or sensitive path disclosure possible depending on config.
++ OSVDB entries / potentially dangerous files (DVWA intentionally contains many).
++ Cookie without HttpOnly / Secure flags (common on default DVWA).
++ Outdated or verbose server banners.
+
+------------------------------------------------------------
+FINDINGS REGISTER (Categorised)
+
+ID | Severity      | Finding                                      | Why it is a risk                              | Recommended Fix
+---|---------------|----------------------------------------------|-----------------------------------------------|--------------------------------------------------
+1  | Medium        | Missing X-Frame-Options header               | Clickjacking attacks possible                 | Add header: X-Frame-Options: DENY or SAMEORIGIN
+2  | Medium        | Missing X-Content-Type-Options               | MIME-sniffing attacks                         | Add header: X-Content-Type-Options: nosniff
+3  | Low           | Server banner disclosure                     | Information leakage aids fingerprinting       | ServerTokens Prod / ServerSignature Off
+4  | High          | Directory listing / sensitive paths          | Exposure of configuration or source           | Disable Indexes; restrict access to /config
+5  | Medium        | Cookies without HttpOnly/Secure              | XSS can steal session; MITM on HTTP           | Set HttpOnly and Secure flags on session cookies
+6  | Informational | Multiple index files / default pages         | May indicate incomplete hardening             | Remove unnecessary default content
+7  | High (lab)    | Intentionally vulnerable application pages   | DVWA is designed to be exploitable            | Expected in lab; never deploy DVWA publicly
+
+------------------------------------------------------------
+SEVERITY SUMMARY
+- High:        Paths that expose configuration or allow easy exploitation in the lab context
+- Medium:      Missing security headers, cookie flags
+- Low:         Information disclosure via banners
+- Info:        Expected behaviour of the training application
+
+------------------------------------------------------------
+NOTES
+- Nikto findings on DVWA will be numerous because the application is deliberately insecure.
+- Cross-reference interesting findings with the OWASP Top 10.
+- Always validate Nikto results manually; false positives can occur.
+- For production use, combine Nikto with authenticated scanning and manual testing.
+
+End of report.
